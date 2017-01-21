@@ -22,6 +22,8 @@ import { SupportPage } from '../pages/support/support';
 
 import { ConferenceData } from '../providers/conference-data';
 import { UserData } from '../providers/user-data';
+import { FBAuthService } from '../providers/fb-auth-service';
+import { HttpClient } from '../providers/http-client';
 
 
 @NgModule({
@@ -63,6 +65,6 @@ import { UserData } from '../providers/user-data';
     TutorialPage,
     SupportPage
   ],
-  providers: [ConferenceData, UserData, Storage]
+  providers: [ConferenceData, UserData, Storage, FBAuthService, HttpClient]
 })
 export class AppModule { }

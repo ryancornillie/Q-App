@@ -1,73 +1,95 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 
-import { Events } from 'ionic-angular';
-import { Storage } from '@ionic/storage';
+import {Events} from 'ionic-angular';
+import {Storage} from '@ionic/storage';
+import {Http} from '@angular/http';
 
+import {FBAuthService} from '../providers/fb-auth-service';
 
 @Injectable()
 export class UserData {
-  _favorites: string[] = [];
-  HAS_LOGGED_IN = 'hasLoggedIn';
-  HAS_SEEN_TUTORIAL = 'hasSeenTutorial';
+    _favorites: string[] = [];
+    HAS_LOGGED_IN = 'hasLoggedIn';
+    HAS_SEEN_TUTORIAL = 'hasSeenTutorial';
 
-  constructor(
-    public events: Events,
-    public storage: Storage
-  ) {}
-
-  hasFavorite(sessionName: string) {
-    return (this._favorites.indexOf(sessionName) > -1);
-  };
-
-  addFavorite(sessionName: string) {
-    this._favorites.push(sessionName);
-  };
-
-  removeFavorite(sessionName: string) {
-    let index = this._favorites.indexOf(sessionName);
-    if (index > -1) {
-      this._favorites.splice(index, 1);
+    constructor(public events: Events,
+                public storage: Storage,
+                private http: Http,
+                private FBAuth: FBAuthService) {
     }
-  };
 
-  login(username: string) {
-    this.storage.set(this.HAS_LOGGED_IN, true);
-    this.setUsername(username);
-    this.events.publish('user:login');
-  };
 
-  signup(username: string) {
-    this.storage.set(this.HAS_LOGGED_IN, true);
-    this.setUsername(username);
-    this.events.publish('user:signup');
-  };
+    hasFavorite(sessionName: string) {
+        return (this._favorites.indexOf(sessionName) > -1);
+    };
 
-  logout() {
-    this.storage.remove(this.HAS_LOGGED_IN);
-    this.storage.remove('username');
-    this.events.publish('user:logout');
-  };
+    addFavorite(sessionName: string) {
+        this._favorites.push(sessionName);
+    };
 
-  setUsername(username: string) {
-    this.storage.set('username', username);
-  };
+    removeFavorite(sessionName: string) {
+        let index = this._favorites.indexOf(sessionName);
+        if (index > -1) {
+            this._favorites.splice(index, 1);
+        }
+    };
 
-  getUsername() {
-    return this.storage.get('username').then((value) => {
-      return value;
-    });
-  };
+    login(username: string) {
 
-  // return a promise
-  hasLoggedIn() {
-    return this.storage.get(this.HAS_LOGGED_IN).then((value) => {
-      return value === true;
-    });
-  };
 
-  checkHasSeenTutorial() {
-    return this.storage.get(this.HAS_SEEN_TUTORIAL).then((value) => {
-      return value;
-    })
-  };
+        this.FBAuth.login().then(
+            (data) => {
+
+                console.log('*****TOKEN: ' + data);
+                console.dir(data);
+
+                this.storage.set('auth_token', data);
+
+                this.storage.set(this.HAS_LOGGED_IN, true);
+                //should get user data from backend
+                this.setUsername('needREalOne');
+                //this.events.publish('user:login');
+                console.log('*****TOKEN: ' + JSON.stringify(data));
+            },
+            (err) => {
+                console.log(JSON.stringify(err));
+            }
+        );
+
+    };
+
+    signup(username: string) {
+        this.storage.set(this.HAS_LOGGED_IN, true);
+        this.setUsername(username);
+        this.events.publish('user:signup');
+    };
+
+    logout() {
+        this.storage.remove(this.HAS_LOGGED_IN);
+        this.storage.remove('username');
+        this.events.publish('user:logout');
+    };
+
+    setUsername(username: string) {
+        this.storage.set('username', username);
+    };
+
+    getUsername() {
+        return this.storage.get('username').then((value) => {
+            return value;
+        });
+    };
+
+    // return a promise
+    hasLoggedIn() {
+        return this.storage.get(this.HAS_LOGGED_IN).then((value) => {
+            return value === true;
+        });
+    };
+
+    checkHasSeenTutorial() {
+        return this.storage.get(this.HAS_SEEN_TUTORIAL).then((value) => {
+            return value;
+        })
+    };
 }

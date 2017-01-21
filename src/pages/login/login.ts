@@ -21,10 +21,10 @@ export class LoginPage {
   onLogin(form: NgForm) {
     this.submitted = true;
 
-    if (form.valid) {
+    //if (form.valid) {
       this.userData.login(this.login.username);
       this.navCtrl.push(TabsPage);
-    }
+    //}
   }
 
   onSignup() {
