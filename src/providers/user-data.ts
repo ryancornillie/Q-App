@@ -2,9 +2,9 @@ import {Injectable} from '@angular/core';
 
 import {Events} from 'ionic-angular';
 import {Storage} from '@ionic/storage';
-import {Http} from '@angular/http';
+import * as jwt from 'jwt-decode';
 
-import {FBAuthService} from '../providers/fb-auth-service';
+import {FBAuthService} from './fb-auth-service';
 
 @Injectable()
 export class UserData {
@@ -14,7 +14,6 @@ export class UserData {
 
     constructor(public events: Events,
                 public storage: Storage,
-                private http: Http,
                 private FBAuth: FBAuthService) {
     }
 
@@ -38,18 +37,21 @@ export class UserData {
 
 
         this.FBAuth.login().then(
-            (data) => {
+            (token) => {
 
-                console.log('*****TOKEN: ' + data);
+                console.log('*****TOKEN: ' + token);
+
+                this.storage.set('auth_token', token);
+
+                let data = jwt(token);
+
                 console.dir(data);
-
-                this.storage.set('auth_token', data);
 
                 this.storage.set(this.HAS_LOGGED_IN, true);
                 //should get user data from backend
                 this.setUsername('needREalOne');
                 //this.events.publish('user:login');
-                console.log('*****TOKEN: ' + JSON.stringify(data));
+                console.log('*****TOKEN: ' + JSON.stringify(token));
             },
             (err) => {
                 console.log(JSON.stringify(err));
